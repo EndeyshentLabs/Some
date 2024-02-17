@@ -257,7 +257,7 @@ end
 
 function Some:mousepressed(x, y, button)
 	if activeWdow then
-		activeWdow.mousepressed(x, y, button)
+		activeWdow:mousepressed(x, y, button)
 	end
 end
 
