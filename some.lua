@@ -111,6 +111,11 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active)
 				end
 			end
 		end,
+		mousepressed = function(self, x, y, button)
+			if self.activeWidget and self.activeWidget.mousepressed then
+				self.activeWidget:mousepressed(x, y, button)
+			end
+		end
 	}
 	wdow.__index = wdow
 
@@ -183,6 +188,36 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 	wdow.widgets[#wdow.widgets]._private = w._private
 end
 
+function Some.WcheckButton(wdow, _x, _y, _enabled)
+	local w = {
+		x = wdow.contentX + _x,
+		y = wdow.contentY + _y,
+		w = 20,
+		h = 20,
+		enabled = _enabled or false,
+		draw = function(self)
+			love.graphics.setColor(Some.theme.background2)
+			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+			if self.enabled then
+				love.graphics.setColor(Some.theme.accent)
+				love.graphics.rectangle("fill", self.x + 2, self.y + 2, self.w - 4, self.h - 4)
+			end
+		end,
+		recalc = function(self)
+			self.x = wdow.contentX + _x
+			self.y = wdow.contentY + _y
+		end,
+		mousepressed = function(self, x, y, button)
+			if pointInXYWH(self, { x = x, y = y}) and button == 1 then
+				self.enabled = not self.enabled
+			end
+		end
+	}
+	w.__index = w
+
+	wdow.widgets[#wdow.widgets + 1] = w
+end
+
 function Some:draw()
 	for _, wdow in pairs(wdows) do
 		if not wdow.active then
@@ -217,6 +252,12 @@ function Some:mousemoved(x, y)
 			activeWdow:mousemoved(x, y)
 			break
 		end
+	end
+end
+
+function Some:mousepressed(x, y, button)
+	if activeWdow then
+		activeWdow.mousepressed(x, y, button)
 	end
 end
 
