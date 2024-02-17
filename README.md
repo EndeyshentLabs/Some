@@ -34,7 +34,7 @@ function love.mousemoved(x, y)
 end
 
 function love.keypressed(k, sc, isrepeat)
-    Some:keypressed(k, sc, isrepeat)
+	Some:keypressed(k, sc, isrepeat)
 end
 ```
 
