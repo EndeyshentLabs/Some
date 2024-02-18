@@ -4,6 +4,9 @@ local utf8 = require("utf8")
 local Some = {
 	_VERSION = "0.0.1",
 	_DESCRIPTION = "Immidiate mode ui library for LOVE2D",
+	_AUTHOR = "EndeyshentLabs",
+	_LICENSE = "MIT",
+	_URL = "https://github.com/EndeyshentLabs/Some",
 }
 
 Some.__index = Some
