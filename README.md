@@ -44,3 +44,6 @@ List of window widgets
 
 - Text (`Wtext`)
 - Input box (`Winput`)
+- Checkbox (`WcheckButton`)
+- Text button (`WtextButton`)
+- Progress bar (clickable btw) (`Wprogressbar`)
