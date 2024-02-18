@@ -23,7 +23,6 @@ function love.draw()
 	Some:draw()
 end
 
-local moveSpeed = 5
 function love.update(dt)
 	if TestWdow and not TestWdow:exists() then
 		TestWdow = nil
