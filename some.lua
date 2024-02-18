@@ -115,7 +115,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active)
 			if self.activeWidget and self.activeWidget.mousepressed then
 				self.activeWidget:mousepressed(x, y, button)
 			end
-		end
+		end,
 	}
 	wdow.__index = wdow
 
@@ -208,10 +208,48 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 			self.y = wdow.contentY + _y
 		end,
 		mousepressed = function(self, x, y, button)
-			if pointInXYWH(self, { x = x, y = y}) and button == 1 then
+			if pointInXYWH(self, { x = x, y = y }) and button == 1 then
 				self.enabled = not self.enabled
 			end
-		end
+		end,
+	}
+	w.__index = w
+
+	wdow.widgets[#wdow.widgets + 1] = w
+end
+
+function Some.WtextButton(wdow, _text, _x, _y, _callback)
+	local w = {
+		text = _text,
+		x = wdow.contentX + _x,
+		y = wdow.contentY + _y,
+		w = Some.theme.font:getWidth(_text),
+		h = Some.theme.font:getHeight(),
+		callback = _callback,
+		draw = function(self)
+			if pointInXYWH(self, { x = love.mouse.getX(), y = love.mouse.getY() }) then -- hovered
+				love.graphics.setColor(Some.theme.foreground)
+				love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+				love.graphics.setColor(Some.theme.background2)
+				love.graphics.print(self.text, Some.theme.font, self.x, self.y)
+			else -- not hovered
+				love.graphics.setColor(Some.theme.background2)
+				love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+				love.graphics.setColor(Some.theme.foreground)
+				love.graphics.print(self.text, Some.theme.font, self.x, self.y)
+			end
+		end,
+		recalc = function(self)
+			self.x = wdow.contentX + _x
+			self.y = wdow.contentY + _y
+		end,
+		mousepressed = function(self, x, y, button)
+			if button == 1 and pointInXYWH(self, { x = x, y = y }) then
+				if self.callback then
+					self:callback()
+				end
+			end
+		end,
 	}
 	w.__index = w
 
