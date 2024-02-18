@@ -317,4 +317,8 @@ function Some:textinput(t)
 	activeWdow:textinput(t)
 end
 
+function Some.isInputGrabbed()
+	return activeWdow ~= nil
+end
+
 return setmetatable({}, Some)
