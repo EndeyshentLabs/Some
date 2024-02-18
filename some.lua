@@ -267,9 +267,11 @@ function Some:draw()
 		love.graphics.rectangle("fill", wdow.x, wdow.y, wdow.w, self.theme.font:getHeight())
 
 		local prefix = "[I]"
+		local isactive = false
 
 		if activeWdow and wdow.id == activeWdow.id then
 			prefix = "[A]"
+			isactive = true
 		end
 
 		love.graphics.setColor(self.theme.background)
@@ -278,6 +280,12 @@ function Some:draw()
 		for _, widget in pairs(wdow.widgets) do
 			widget:draw()
 		end
+
+		love.graphics.setColor(self.theme.background2)
+		if isactive then
+			love.graphics.setColor(self.theme.secondary)
+		end
+		love.graphics.rectangle("line", wdow.x - 1, wdow.y - 1, wdow.w + 2, wdow.h + 2)
 		::continue::
 	end
 end
@@ -292,7 +300,13 @@ function Some:mousemoved(x, y, dx, dy)
 		end
 	end
 
-	if dx ~= nil and dy ~= nil and activeWdow and pointInXYWH(activeWdow, { x = x, y = y }) and love.mouse.isDown(1) then
+	if
+		dx ~= nil
+		and dy ~= nil
+		and activeWdow
+		and pointInXYWH(activeWdow, { x = x, y = y })
+		and love.mouse.isDown(1)
+	then
 		activeWdow:move(dx, dy)
 	end
 end
