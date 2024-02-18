@@ -259,6 +259,37 @@ function Some.WtextButton(wdow, _text, _x, _y, _callback)
 	wdow.widgets[#wdow.widgets + 1] = w
 end
 
+function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
+	local w = {
+		progress = 0,
+		clickable = _clickable or false,
+		x = wdow.contentX + _x,
+		y = wdow.contentY + _y,
+		w = _w,
+		h = 20,
+		draw = function(self)
+			love.graphics.setColor(Some.theme.background2)
+			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+			love.graphics.setColor(Some.theme.accent)
+			love.graphics.rectangle("fill", self.x, self.y, self.progress * self.w, self.h)
+		end,
+		recalc = function(self)
+			self.x = wdow.contentX + _x
+			self.y = wdow.contentY + _y
+		end,
+		mousepressed = function(self, x, y, button)
+			if not self.clickable or not pointInXYWH(self, { x = x, y = y }) or button ~= 1 then
+				return
+			end
+
+			self.progress = (x - self.x) / self.w
+		end,
+	}
+	w.__index = w
+
+	wdow.widgets[#wdow.widgets + 1] = w
+end
+
 function Some:draw()
 	for _, wdow in pairs(wdows) do
 		if not wdow.active then

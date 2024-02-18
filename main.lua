@@ -15,6 +15,8 @@ function love.load()
 		end
 	)
 
+	Some.Wprogressbar(TestWdow, 0, 20, 100, true)
+
 	love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 	love.keyboard.setKeyRepeat(true)
 end
@@ -31,6 +33,10 @@ end
 
 function love.mousemoved(x, y, dx, dy)
 	Some:mousemoved(x, y, dx, dy)
+end
+
+function love.mousepressed(x, y, button)
+	Some:mousepressed(x, y, button)
 end
 
 ---@diagnostic disable-next-line: unused-local
