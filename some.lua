@@ -173,6 +173,10 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 			love.graphics.setColor(Some.theme.secondary)
 			love.graphics.print(self._private.text, Some.theme.font, self.x, self.y)
+			if #self._private.text > 0 and wdow.activeWidget == self then
+				local w = Some.theme.font:getWidth(self._private.text)
+				love.graphics.line(self.x + w + 1, self.y, self.x + w + 1, self.y + self.h)
+			end
 		end,
 		recalc = function(self)
 			self.x = wdow.contentX + _x
@@ -192,6 +196,11 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 				if self.onsubmit then
 					self:onsubmit(self._private.text)
 				end
+			end
+		end,
+		mouseexit = function(self)
+			if self.onsubmit then
+				self:onsubmit(self._private.text)
 			end
 		end,
 	}
