@@ -282,7 +282,7 @@ function Some:draw()
 	end
 end
 
-function Some:mousemoved(x, y)
+function Some:mousemoved(x, y, dx, dy)
 	activeWdow = nil
 	for _, wdow in pairs(wdows) do
 		if wdow.active and pointInXYWH(wdow, { x = x, y = y }) then
@@ -290,6 +290,10 @@ function Some:mousemoved(x, y)
 			activeWdow:mousemoved(x, y)
 			break
 		end
+	end
+
+	if dx ~= nil and dy ~= nil and activeWdow and pointInXYWH(activeWdow, { x = x, y = y }) and love.mouse.isDown(1) then
+		activeWdow:move(dx, dy)
 	end
 end
 

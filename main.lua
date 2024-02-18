@@ -30,8 +30,8 @@ function love.update(dt)
 	end
 end
 
-function love.mousemoved(x, y)
-	Some:mousemoved(x, y)
+function love.mousemoved(x, y, dx, dy)
+	Some:mousemoved(x, y, dx, dy)
 end
 
 ---@diagnostic disable-next-line: unused-local
