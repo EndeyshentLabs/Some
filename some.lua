@@ -310,6 +310,7 @@ function Some:mousemoved(x, y, dx, dy)
 		and activeWdow
 		and pointInXYWH(activeWdow, { x = x, y = y })
 		and love.mouse.isDown(1)
+		and not activeWdow.activeWidget
 	then
 		activeWdow:move(dx, dy)
 	end
