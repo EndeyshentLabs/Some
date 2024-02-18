@@ -106,11 +106,21 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active)
 			return wdows[self.id] ~= nil
 		end,
 		mousemoved = function(self, x, y)
+			local oldActive = self.activeWidget
 			self.activeWidget = nil
 			for _, widget in pairs(self.widgets) do
 				if pointInXYWH(widget, { x = x, y = y }) then
 					self.activeWidget = widget
 					break
+				end
+			end
+
+			if self.activeWidget ~= oldActive then
+				if oldActive and oldActive.mouseexit then
+					oldActive:mouseexit()
+				end
+				if self.activeWidget and self.activeWidget.mouseenter then
+					self.activeWidget:mouseenter()
 				end
 			end
 		end,
