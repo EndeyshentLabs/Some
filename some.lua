@@ -375,7 +375,7 @@ function Some:draw()
 		local isactive = false
 
 		if activeWdow and wdow.id == activeWdow.id then
-			prefix = self.theme.pfxInactive
+			prefix = self.theme.pfxActive
 			isactive = true
 		end
 
