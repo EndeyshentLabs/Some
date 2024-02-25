@@ -11,6 +11,7 @@ local Some = {
 
 Some.__index = Some
 
+---@type Some.Theme
 Some.defaultTheme = {
 	foreground = { 1, 1, 1 },
 	secondary = { 0.95, 0.95, 0.95 },
