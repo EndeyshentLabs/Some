@@ -22,6 +22,9 @@ Some.defaultTheme = {
 	warning = { 1, 1, 0 },
 
 	font = love.graphics.newFont(12),
+
+	pfxInactive = "[I]",
+	pfxActive = "[A]"
 }
 
 Some.theme = Some.defaultTheme
@@ -321,11 +324,11 @@ function Some:draw()
 		love.graphics.setColor(self.theme.foreground)
 		love.graphics.rectangle("fill", wdow.x, wdow.y, wdow.w, self.theme.font:getHeight())
 
-		local prefix = "[I]"
+		local prefix = self.theme.pfxInactive
 		local isactive = false
 
 		if activeWdow and wdow.id == activeWdow.id then
-			prefix = "[A]"
+			prefix = self.theme.pfxInactive
 			isactive = true
 		end
 
