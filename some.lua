@@ -45,6 +45,7 @@ function Some:init(theme)
 end
 
 function Some.addWindow(_title, _x, _y, _w, _h, _active)
+function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 	local _id = #wdows + 1
 	local wdow = {
 		id = _id,
@@ -54,6 +55,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active)
 		w = _w,
 		h = _h,
 		active = _active or true,
+		protected = _protected or false,
 		contentX = _x + 0,
 		contentY = _y + Some.theme.font:getHeight(),
 		activeWidget = nil,
@@ -76,7 +78,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active)
 			end
 		end,
 		keypressed = function(self, k, sc, isrepeat)
-			if k == "escape" and love.keyboard.isDown("lalt") then
+			if k == "escape" and love.keyboard.isDown("lalt") and not self.protected then
 				self.active = false
 				activeWdow = nil
 				wdows[self.id] = nil
