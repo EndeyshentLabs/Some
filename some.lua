@@ -1,6 +1,6 @@
 local utf8 = require("utf8")
 
----@module "Some"
+---@module 'Some'
 local Some = {
 	_VERSION = "0.0.1",
 	_DESCRIPTION = "Immidiate mode ui library for LOVE2D",
@@ -63,7 +63,7 @@ end
 ---@param _w number
 ---@param _h number
 ---@param _active boolean?
----@param _protected boolean
+---@param _protected boolean?
 ---@return Some.Wdow
 function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 	local _id = #wdows + 1
@@ -153,6 +153,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 			end
 		end,
 	}
+---@diagnostic disable-next-line: inject-field
 	wdow.__index = wdow
 
 	wdows[_id] = wdow
@@ -476,4 +477,5 @@ return setmetatable({}, Some)
 ---@field protected boolean
 ---@field contentX number Base X postion for content
 ---@field contentY number Base Y postion for content
+---@field widgets table<Some.Widget> Pool of widgets
 ---@field activeWidget Some.Widget?
