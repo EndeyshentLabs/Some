@@ -27,12 +27,19 @@ Some.defaultTheme = {
 	pfxActive = "[A]"
 }
 
+---@type Some.Theme
 Some.theme = Some.defaultTheme
 
+---@type table<Some.Wdow>
 local wdows = {}
 
+---@type Some.Wdow?
 local activeWdow = nil
 
+---Returns true if point `vec2` is in box `xywh`
+---@param xywh Some.XYWH
+---@param vec2 Some.XY
+---@return boolean
 local function pointInXYWH(xywh, vec2)
 	if ((vec2.x < xywh.x) or (vec2.y < xywh.y)) or ((vec2.x > xywh.x + xywh.w) or (vec2.y > xywh.y + xywh.h)) then
 		return false
@@ -41,15 +48,26 @@ local function pointInXYWH(xywh, vec2)
 	return true
 end
 
+---Initializes the Some
+---@param theme Some.Theme
 function Some:init(theme)
 	if type(theme) == "table" then
 		self.theme = theme
 	end
 end
 
-function Some.addWindow(_title, _x, _y, _w, _h, _active)
+---Creates a new Some window
+---@param _title string
+---@param _x number
+---@param _y number
+---@param _w number
+---@param _h number
+---@param _active boolean?
+---@param _protected boolean
+---@return Some.Wdow
 function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 	local _id = #wdows + 1
+	---@type Some.Wdow
 	local wdow = {
 		id = _id,
 		title = _title,
@@ -142,6 +160,11 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 	return wdows[#wdows]
 end
 
+---Basic text widget
+---@param wdow Some.Wdow
+---@param _text string
+---@param _x number
+---@param _y number
 function Some.Wtext(wdow, _text, _x, _y)
 	local w = {
 		text = _text,
@@ -163,6 +186,12 @@ function Some.Wtext(wdow, _text, _x, _y)
 	wdow.widgets[#wdow.widgets + 1] = w
 end
 
+---Input field widget
+---@param wdow Some.Wdow
+---@param _x number
+---@param _y number
+---@param _w number
+---@param _onsubmit function What to do on `Enter` keypress
 function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 	local w = {
 		_private = {
@@ -215,6 +244,11 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 	wdow.widgets[#wdow.widgets]._private = w._private
 end
 
+---Toggle/Check button
+---@param wdow Some.Wdow
+---@param _x number
+---@param _y number
+---@param _enabled boolean Default button state
 function Some.WcheckButton(wdow, _x, _y, _enabled)
 	local w = {
 		x = wdow.contentX + _x,
@@ -245,6 +279,12 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 	wdow.widgets[#wdow.widgets + 1] = w
 end
 
+---Basic button with text
+---@param wdow Some.Wdow
+---@param _text string
+---@param _x number
+---@param _y number
+---@param _callback function What to do on LMB click
 function Some.WtextButton(wdow, _text, _x, _y, _callback)
 	local w = {
 		text = _text,
@@ -283,6 +323,13 @@ function Some.WtextButton(wdow, _text, _x, _y, _callback)
 	wdow.widgets[#wdow.widgets + 1] = w
 end
 
+---Progress bar. Can display progress or (if clickable=false) set progress.
+---`progress` field is normalized to [0; 1] range
+---@param wdow Some.Wdow
+---@param _x number
+---@param _y number
+---@param _w number
+---@param _clickable boolean
 function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 	local w = {
 		progress = 0,
@@ -396,3 +443,37 @@ function Some.isInputGrabbed()
 end
 
 return setmetatable({}, Some)
+
+---@class Some.Theme
+---@field foreground table Main foreground color
+---@field secondary table Secondary foreground color
+---@field background table Main background color
+---@field background2 table Secondary background color
+---@field accent table Accent color (also success color)
+---@field error table Error color
+---@field warning table Warning color
+---@field font love.Font Font to Some to use
+---@field pfxInactive string Prefix for windows that aren't active
+---@field pfxActive string Prefix for windows that are active
+
+---Basic Vector2 or Point
+---@class Some.XY
+---@field x number X position
+---@field y number Y position
+
+---Basic AA rectangle
+---@class Some.XYWH: Some.XY
+---@field w number Width
+---@field h number Height
+
+---Widget attachable to window
+---@class Some.Widget: Some.XYWH
+
+---@class Some.Wdow: Some.XYWH
+---@field id integer Window's ID
+---@field title string Window's title
+---@field active boolean Is window visible
+---@field protected boolean
+---@field contentX number Base X postion for content
+---@field contentY number Base Y postion for content
+---@field activeWidget Some.Widget?
