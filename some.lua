@@ -166,6 +166,7 @@ end
 ---@param _text string
 ---@param _x number
 ---@param _y number
+---@return Some.Widget created widget
 function Some.Wtext(wdow, _text, _x, _y)
 	local w = {
 		text = _text,
@@ -185,6 +186,8 @@ function Some.Wtext(wdow, _text, _x, _y)
 	w.__index = w
 
 	wdow.widgets[#wdow.widgets + 1] = w
+
+	return wdow.widgets[#wdow.widgets]
 end
 
 ---Input field widget
@@ -193,6 +196,7 @@ end
 ---@param _y number
 ---@param _w number
 ---@param _onsubmit function What to do on `Enter` keypress
+---@return Some.Widget created widget
 function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 	local w = {
 		_private = {
@@ -243,6 +247,8 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 
 	wdow.widgets[#wdow.widgets + 1] = w
 	wdow.widgets[#wdow.widgets]._private = w._private
+
+	return wdow.widgets[#wdow.widgets]
 end
 
 ---Toggle/Check button
@@ -250,6 +256,7 @@ end
 ---@param _x number
 ---@param _y number
 ---@param _enabled boolean Default button state
+---@return Some.Widget created widget
 function Some.WcheckButton(wdow, _x, _y, _enabled)
 	local w = {
 		x = wdow.contentX + _x,
@@ -278,6 +285,8 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 	w.__index = w
 
 	wdow.widgets[#wdow.widgets + 1] = w
+
+	return wdow.widgets[#wdow.widgets]
 end
 
 ---Basic button with text
@@ -286,6 +295,7 @@ end
 ---@param _x number
 ---@param _y number
 ---@param _callback function What to do on LMB click
+---@return Some.Widget created widget
 function Some.WtextButton(wdow, _text, _x, _y, _callback)
 	local w = {
 		text = _text,
@@ -322,6 +332,8 @@ function Some.WtextButton(wdow, _text, _x, _y, _callback)
 	w.__index = w
 
 	wdow.widgets[#wdow.widgets + 1] = w
+
+	return wdow.widgets[#wdow.widgets]
 end
 
 ---Progress bar. Can display progress or (if clickable=false) set progress.
@@ -331,6 +343,7 @@ end
 ---@param _y number
 ---@param _w number
 ---@param _clickable boolean
+---@return Some.Widget created widget
 function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 	local w = {
 		progress = 0,
@@ -360,6 +373,8 @@ function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 	w.__index = w
 
 	wdow.widgets[#wdow.widgets + 1] = w
+
+	return wdow.widgets[#wdow.widgets]
 end
 
 function Some:draw()
