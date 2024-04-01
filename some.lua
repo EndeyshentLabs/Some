@@ -1,6 +1,5 @@
 local utf8 = require("utf8")
 
----@module 'Some'
 local Some = {
 	_VERSION = "0.0.1",
 	_DESCRIPTION = "Immidiate mode ui library for LOVE2D",
