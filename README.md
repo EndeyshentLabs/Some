@@ -10,7 +10,6 @@ Goals:
 ## Example
 
 See [main.lua](./main.lua) for more detailed example
-
 ### Hello, World!
 
 ```lua
@@ -47,3 +46,4 @@ List of window widgets
 - Checkbox (`WcheckButton`)
 - Text button (`WtextButton`)
 - Progress bar (clickable btw) (`Wprogressbar`)
+- Dropdown list (`Wdropdown`)

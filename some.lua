@@ -382,6 +382,68 @@ function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 	return wdow.widgets[#wdow.widgets]
 end
 
+---Dropdown menu (more like create-window menu)
+---@param wdow Some.Wdow
+---@param _x number
+---@param _y number
+---@param _items table Options to choose from
+---@param default number? Default option
+---@return Some.Widget created widget
+function Some.Wdropdown(wdow, _x, _y, _items, default)
+	local w = {
+		x = wdow.contentX + _x,
+		y = wdow.contentY + _y,
+		items = _items,
+		current = default or 1,
+		w = (function ()
+			local longest = Some.theme.font:getWidth("(none)")
+			for _, item in ipairs(_items) do
+				local lenght = Some.theme.font:getWidth(item)
+				if lenght > longest then
+					longest = lenght
+				end
+			end
+			return longest + Some.theme.font:getHeight()
+		end)(),
+		h = Some.theme.font:getHeight(),
+		draw = function (self)
+			love.graphics.setColor(Some.theme.background2)
+			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+			love.graphics.setColor(Some.theme.foreground)
+			if self.items[self.current] then
+				love.graphics.print(self.items[self.current], Some.theme.font, Some.theme.font:getHeight() + self.x, self.y)
+			else
+				love.graphics.print("(none)", Some.theme.font, Some.theme.font:getHeight() + self.x, self.y)
+			end
+			love.graphics.setColor(Some.theme.secondary)
+			love.graphics.rectangle("fill", self.x, self.y, Some.theme.font:getHeight(), self.h)
+		end,
+		recalc = function(self)
+			self.x = wdow.contentX + _x
+			self.y = wdow.contentY + _y
+		end,
+		mousepressed = function(self, x, y, button)
+			local itemsWdow = Some.addWindow("Select one item",
+				0, 0,
+				math.max(self.w,
+					Some.theme.font:getWidth("Select one item") +
+					Some.theme.font:getWidth(Some.theme.pfxActive .. " ")),
+				(#self.items + 1) * Some.theme.font:getHeight())
+			for k, item in ipairs(self.items) do
+				Some.WtextButton(itemsWdow, item, 0, (k - 1) * Some.theme.font:getHeight(), function ()
+					self.current = k
+					itemsWdow:exit()
+				end)
+			end
+		end,
+	}
+	w.__index = w
+
+	wdow.widgets[#wdow.widgets + 1] = w
+
+	return wdow.widgets[#wdow.widgets]
+end
+
 function Some:draw()
 	for _, wdow in pairs(wdows) do
 		if not wdow.active then

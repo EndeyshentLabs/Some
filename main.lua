@@ -2,7 +2,7 @@ local Some = require("some")
 
 function love.load()
 	-- Some:init()
-	TestWdow = Some.addWindow("Test wdow", 100, 100, 400, 70)
+	TestWdow = Some.addWindow("Test wdow", 100, 100, 400, 80)
 
 	Some.Wtext(TestWdow, "Input: ", 0, 5)
 	Some.Winput(
@@ -16,6 +16,7 @@ function love.load()
 	)
 
 	Some.Wprogressbar(TestWdow, 0, 20, 100, true)
+	Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
 
 	love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 	love.keyboard.setKeyRepeat(true)
@@ -44,6 +45,8 @@ function love.keypressed(key, scancode, isrepeat)
 	Some:keypressed(key, scancode, isrepeat)
 	if key == "space" then
 		TestWdow.active = not TestWdow.active
+	elseif key == "d" then
+		print(TestWdow.widgets[#TestWdow.widgets].current)
 	elseif key == "`" then
 		debug.debug()
 	end

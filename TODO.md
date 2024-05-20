@@ -6,3 +6,4 @@
 - [ ] Scrollable window (off-screen canvas rendering?)
 - [ ] Radio button
 - [ ] Image
+- [x] Dropdown list
