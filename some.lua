@@ -99,12 +99,8 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 			end
 		end,
 		keypressed = function(self, k, sc, isrepeat)
-			if k == "escape" and love.keyboard.isDown("lalt") and not self.protected then
-				self.active = false
-				activeWdow = nil
-				wdows[self.id] = nil
-				self = nil
-				Some:mousemoved(love.mouse.getX(), love.mouse.getY())
+			if k == "escape" and love.keyboard.isDown("lalt") then
+				self:exit()
 			elseif k == "tab" and love.keyboard.isDown("lalt") then
 				self.active = false
 				activeWdow = nil
@@ -150,6 +146,15 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 		mousepressed = function(self, x, y, button)
 			if self.activeWidget and self.activeWidget.mousepressed then
 				self.activeWidget:mousepressed(x, y, button)
+			end
+		end,
+		exit = function (self)
+			if not self.protected then
+				self.active = false
+				activeWdow = nil
+				wdows[self.id] = nil
+				self = nil
+				Some:mousemoved(love.mouse.getX(), love.mouse.getY())
 			end
 		end,
 	}
