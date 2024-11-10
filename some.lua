@@ -482,7 +482,7 @@ function Some:mousemoved(x, y, dx, dy)
 	activeWdow = nil
 	for i = #wdows, 1, -1 do
 		local wdow = wdows[i]
-		if wdow.active and pointInXYWH(wdow, { x = x, y = y }) then
+		if wdow and wdow.active and pointInXYWH(wdow, { x = x, y = y }) then
 			activeWdow = wdow
 			activeWdow:mousemoved(x, y)
 			break
