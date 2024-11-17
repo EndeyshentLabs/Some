@@ -525,7 +525,7 @@ function Some.isInputGrabbed()
 	return activeWdow ~= nil
 end
 
-return setmetatable({}, Some)
+return Some
 
 ---@class Some.Theme
 ---@field foreground table Main foreground color
