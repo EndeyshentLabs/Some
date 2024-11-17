@@ -2,13 +2,11 @@ local utf8 = require("utf8")
 
 local Some = {
 	_VERSION = "0.0.1",
-	_DESCRIPTION = "Immidiate mode ui library for LOVE2D",
+	_DESCRIPTION = "GUI library for LOVE2D",
 	_AUTHOR = "EndeyshentLabs",
 	_LICENSE = "MIT",
 	_URL = "https://github.com/EndeyshentLabs/Some",
 }
-
-Some.__index = Some
 
 ---@type Some.Theme
 Some.defaultTheme = {
@@ -23,8 +21,12 @@ Some.defaultTheme = {
 
 	font = love.graphics.newFont(12),
 
-	pfxInactive = "[I]",
-	pfxActive = "[A]"
+	lineWidth = 2,
+
+	pfxInactive = "I",
+	pfxActive = "A",
+	prot = { "<", ">" },
+	norm = { "[", "]" }
 }
 
 ---@type Some.Theme
@@ -69,6 +71,7 @@ end
 function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 	local _id = #wdows + 1
 	lastId = _id
+
 	---@type Some.Wdow
 	local wdow = {
 		id = _id,
@@ -150,7 +153,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 				self.activeWidget:mousepressed(x, y, button)
 			end
 		end,
-		exit = function (self)
+		exit = function(self)
 			if not self.protected then
 				self.active = false
 				activeWdow = nil
@@ -160,7 +163,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 			end
 		end,
 	}
----@diagnostic disable-next-line: inject-field
+	---@diagnostic disable-next-line: inject-field
 	wdow.__index = wdow
 
 	wdows[_id] = wdow
@@ -397,7 +400,7 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 		y = wdow.contentY + _y,
 		items = _items,
 		current = default or 1,
-		w = (function ()
+		w = (function()
 			local longest = Some.theme.font:getWidth("(none)")
 			for _, item in ipairs(_items) do
 				local lenght = Some.theme.font:getWidth(item)
@@ -408,12 +411,13 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 			return longest + Some.theme.font:getHeight()
 		end)(),
 		h = Some.theme.font:getHeight(),
-		draw = function (self)
+		draw = function(self)
 			love.graphics.setColor(Some.theme.background2)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 			love.graphics.setColor(Some.theme.foreground)
 			if self.items[self.current] then
-				love.graphics.print(self.items[self.current], Some.theme.font, Some.theme.font:getHeight() + self.x, self.y)
+				love.graphics.print(self.items[self.current], Some.theme.font, Some.theme.font:getHeight() + self.x,
+					self.y)
 			else
 				love.graphics.print("(none)", Some.theme.font, Some.theme.font:getHeight() + self.x, self.y)
 			end
@@ -432,7 +436,7 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 					Some.theme.font:getWidth(Some.theme.pfxActive .. " ")),
 				(#self.items + 1) * Some.theme.font:getHeight())
 			for k, item in ipairs(self.items) do
-				Some.WtextButton(itemsWdow, item, 0, (k - 1) * Some.theme.font:getHeight(), function ()
+				Some.WtextButton(itemsWdow, item, 0, (k - 1) * Some.theme.font:getHeight(), function()
 					self.current = k
 					itemsWdow:exit()
 				end)
@@ -447,6 +451,10 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 end
 
 function Some:draw()
+	local lWidthBefore = love.graphics.getLineWidth()
+
+	love.graphics.setLineWidth(self.theme.lineWidth)
+
 	for _, wdow in pairs(wdows) do
 		if not wdow.active then
 			goto continue
@@ -455,6 +463,13 @@ function Some:draw()
 		love.graphics.rectangle("fill", wdow.x, wdow.y, wdow.w, wdow.h)
 		love.graphics.setColor(self.theme.foreground)
 		love.graphics.rectangle("fill", wdow.x, wdow.y, wdow.w, self.theme.font:getHeight())
+
+		local lSurround = self.theme.norm[1]
+		local rSurround = self.theme.norm[2]
+		if wdow.protected then
+			lSurround = self.theme.prot[1]
+			rSurround = self.theme.prot[2]
+		end
 
 		local prefix = self.theme.pfxInactive
 		local isactive = false
@@ -465,7 +480,8 @@ function Some:draw()
 		end
 
 		love.graphics.setColor(self.theme.background)
-		love.graphics.print(prefix .. " " .. wdow.title, self.theme.font, wdow.x, wdow.y)
+		love.graphics.print(lSurround .. prefix .. rSurround .. " " .. wdow.title, self.theme.font, wdow.x,
+			wdow.y)
 
 		for _, widget in pairs(wdow.widgets) do
 			widget:draw()
@@ -475,9 +491,12 @@ function Some:draw()
 		if isactive then
 			love.graphics.setColor(self.theme.secondary)
 		end
-		love.graphics.rectangle("line", wdow.x - 1, wdow.y - 1, wdow.w + 2, wdow.h + 2)
+		love.graphics.rectangle("line", wdow.x - self.theme.lineWidth / 2, wdow.y - self.theme.lineWidth / 2,
+			wdow.w + self.theme.lineWidth, wdow.h + self.theme.lineWidth)
 		::continue::
 	end
+
+	love.graphics.setLineWidth(lWidthBefore)
 end
 
 function Some:mousemoved(x, y, dx, dy)
@@ -505,6 +524,12 @@ end
 
 function Some:mousepressed(x, y, button)
 	if activeWdow then
+		-- TODO: Make close button
+		-- NOTE: This works if wdow's title starts with "[X]"
+		-- if pointInXYWH({ x = activeWdow.x, y = activeWdow.y, w = self.theme.font:getWidth("[X]"), h = self.theme.font:getHeight() }, { x = x, y = y }) then
+		--	activeWdow:exit()
+		--	return
+		-- end
 		activeWdow:mousepressed(x, y, button)
 	end
 end
@@ -538,8 +563,11 @@ return Some
 ---@field error table Error color
 ---@field warning table Warning color
 ---@field font love.Font Font to Some to use
+---@field lineWidth integer Line width
 ---@field pfxInactive string Prefix for windows that aren't active
 ---@field pfxActive string Prefix for windows that are active
+---@field prot table Surround for prefix. [1] is left, [2] is right
+---@field norm table Surround for prefix. [1] is left, [2] is right
 
 ---Basic Vector2 or Point
 ---@class Some.XY
