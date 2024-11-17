@@ -32,6 +32,7 @@ Some.theme = Some.defaultTheme
 
 ---@type table<Some.Wdow>
 local wdows = {}
+local lastId = 0
 
 ---@type Some.Wdow?
 local activeWdow = nil
@@ -67,6 +68,7 @@ end
 ---@return Some.Wdow
 function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 	local _id = #wdows + 1
+	lastId = _id
 	---@type Some.Wdow
 	local wdow = {
 		id = _id,
