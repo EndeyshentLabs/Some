@@ -1,6 +1,6 @@
 # Some
 
-Somewhat immediate GUI library for LOVE2D.
+Somewhat GUI library for LOVE2D.
 
 Goals:
 - No dependencies (other than `utf8` and LOVE2D)
