@@ -80,8 +80,8 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 		y = _y,
 		w = _w,
 		h = _h,
-		active = _active or true,
-		protected = _protected or false,
+		active = _active == nil and true or _active,
+		protected = _protected == nil and false or _protected,
 		contentX = _x + 0,
 		contentY = _y + Some.theme.font:getHeight(),
 		activeWidget = nil,
@@ -273,7 +273,7 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 		y = wdow.contentY + _y,
 		w = 20,
 		h = 20,
-		enabled = _enabled or false,
+		enabled = _enabled == nil and false or _enabled,
 		draw = function(self)
 			love.graphics.setColor(Some.theme.background2)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
@@ -357,7 +357,7 @@ end
 function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 	local w = {
 		progress = 0,
-		clickable = _clickable or false,
+		clickable = _clickable == nil and false or _clickable,
 		x = wdow.contentX + _x,
 		y = wdow.contentY + _y,
 		w = _w,
@@ -399,7 +399,7 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 		x = wdow.contentX + _x,
 		y = wdow.contentY + _y,
 		items = _items,
-		current = default or 1,
+		current = default == nil and 1 or default,
 		w = (function()
 			local longest = Some.theme.font:getWidth("(none)")
 			for _, item in ipairs(_items) do
