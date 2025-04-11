@@ -78,12 +78,19 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 		title = _title,
 		x = _x,
 		y = _y,
+		-- TODO: Accommodate for title bar. <2025-04-11>
 		w = _w,
 		h = _h,
 		active = _active == nil and true or _active,
 		protected = _protected == nil and false or _protected,
 		contentX = _x + 0,
 		contentY = _y + Some.theme.font:getHeight(),
+		quad = {
+			x = _x,
+			y = _y,
+			w = _w,
+			h = _h,
+		},
 		activeWidget = nil,
 		widgets = {},
 		move = function(self, x, y)
@@ -91,6 +98,12 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 			self.y = self.y + y
 			self.contentX = self.x + 0
 			self.contentY = self.y + Some.theme.font:getHeight()
+			self.quad = {
+				x = self.x,
+				y = self.y,
+				w = self.w,
+				h = self.h,
+			}
 
 			for _, widget in pairs(self.widgets) do
 				widget:recalc()
@@ -483,9 +496,15 @@ function Some:draw()
 		love.graphics.print(lSurround .. prefix .. rSurround .. " " .. wdow.title, self.theme.font, wdow.x,
 			wdow.y)
 
+		love.graphics.push("all")
+		-- Clip things that are outside of wdow bounds
+		-- TODO: Create scrollable wdows. <2025-04-11>
+		love.graphics.setScissor(wdow.quad.x, wdow.quad.y, wdow.quad.w, wdow.quad.h)
 		for _, widget in pairs(wdow.widgets) do
 			widget:draw()
 		end
+		love.graphics.setScissor()
+		love.graphics.pop()
 
 		love.graphics.setColor(self.theme.background2)
 		if isactive then
