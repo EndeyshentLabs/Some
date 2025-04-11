@@ -15,14 +15,17 @@ function love.load()
 		end
 	)
 
-	Some.Wprogressbar(TestWdow, 0, 20, 100, true)
-	Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
+	ProgressW = Some.Wprogressbar(TestWdow, 0, 20, 100, true)
+	DropdownW = Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
 
 	love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 	love.keyboard.setKeyRepeat(true)
 end
 
 function love.draw()
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.print("Progress bar:\t" .. ProgressW.progress, 0, 0)
+	love.graphics.print("Dropdown menu:\t" .. DropdownW.current, 0, love.graphics.getFont():getHeight() + 1)
 	Some:draw()
 end
 
