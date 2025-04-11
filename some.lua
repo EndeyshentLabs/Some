@@ -125,13 +125,13 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 				Some:mousemoved(love.mouse.getX(), love.mouse.getY())
 			else
 				if love.keyboard.isDown("lalt") then
-					if k == "s" or k == "down" then
+					if sc == "s" or k == "down" then
 						self:move(0, 1)
-					elseif k == "w" or k == "up" then
+					elseif sc == "w" or k == "up" then
 						self:move(0, -1)
-					elseif k == "d" or k == "right" then
+					elseif sc == "d" or k == "right" then
 						self:move(1, 0)
-					elseif k == "a" or k == "left" then
+					elseif sc == "a" or k == "left" then
 						self:move(-1, 0)
 					end
 				elseif self.activeWidget and self.activeWidget.keypressed then
