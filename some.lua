@@ -26,7 +26,7 @@ Some.defaultTheme = {
 	pfxInactive = "I",
 	pfxActive = "A",
 	prot = { "<", ">" },
-	norm = { "[", "]" }
+	norm = { "[", "]" },
 }
 
 ---@type Some.Theme
@@ -44,7 +44,9 @@ local activeWdow = nil
 ---@param vec2 Some.XY
 ---@return boolean
 local function pointInXYWH(xywh, vec2)
-	if ((vec2.x < xywh.x) or (vec2.y < xywh.y)) or ((vec2.x > xywh.x + xywh.w) or (vec2.y > xywh.y + xywh.h)) then
+	if ((vec2.x < xywh.x) or (vec2.y < xywh.y))
+		or ((vec2.x > xywh.x + xywh.w) or (vec2.y > xywh.y + xywh.h))
+	then
 		return false
 	end
 
@@ -224,6 +226,7 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 	local w = {
 		_private = {
 			text = "",
+			cursor = nil,
 		},
 		x = wdow.contentX + _x,
 		y = wdow.contentY + _y,
@@ -233,11 +236,39 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 		draw = function(self)
 			love.graphics.setColor(Some.theme.background2)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+
 			love.graphics.setColor(Some.theme.secondary)
-			love.graphics.print(self._private.text, Some.theme.font, self.x, self.y)
+			love.graphics.print(
+				self._private.text,
+				Some.theme.font,
+				self.x,
+				self.y
+			)
+
 			if #self._private.text > 0 and wdow.activeWidget == self then
-				local w = Some.theme.font:getWidth(self._private.text)
-				love.graphics.line(self.x + w + 1, self.y, self.x + w + 1, self.y + self.h)
+				local b = self._private.text
+				local c = self._private.cursor
+				local w = Some.theme.font:getWidth(b)
+
+				if c ~= nil then
+					if c == 0 then
+						w = 0
+					else
+						w = Some.theme.font:getWidth(
+							b:sub(
+								1,
+								utf8.offset(b, c + 1) - 1
+							)
+						)
+					end
+				end
+
+				love.graphics.line(
+					self.x + w + 1,
+					self.y,
+					self.x + w + 1,
+					self.y + self.h
+				)
 			end
 		end,
 		recalc = function(self)
@@ -245,15 +276,60 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 			self.y = wdow.contentY + _y
 		end,
 		textinput = function(self, t)
-			self._private.text = self._private.text .. t
+			local b = self._private.text
+			local c = self._private.cursor
+			if not c then
+				self._private.text = b .. t
+			else
+				self._private.text = string.sub(b, 1, utf8.offset(b, c + 1) - 1)
+					.. t .. string.sub(b, utf8.offset(b, c + 1))
+				self._private.cursor =
+					math.min(self._private.cursor + 1, utf8.len(b) + 1)
+			end
 		end,
 		keypressed = function(self, k, sc, isrepeat)
 			if k == "backspace" then
-				local byteoffset = utf8.offset(self._private.text, -1)
+				local b = self._private.text
+				local c = self._private.cursor
+				if c ~= nil then
+					self._private.text = b:sub(1, utf8.offset(b, c) - 1)
+						.. b:sub(utf8.offset(b, c + 1))
+					self._private.cursor = math.max(self._private.cursor - 1, 0)
+				else
+					local byteoffset = utf8.offset(b, -1)
 
-				if byteoffset then
-					self._private.text = string.sub(self._private.text, 1, byteoffset - 1)
+					if byteoffset then
+						self._private.text = string.sub(b, 1, byteoffset - 1)
+					end
 				end
+			elseif k == "delete" then
+				local b = self._private.text
+				local c = self._private.cursor
+				if c ~= nil and c < utf8.len(b) then
+					self._private.text = b:sub(1, utf8.offset(b, c + 1) - 1)
+						.. b:sub(utf8.offset(b, c + 2))
+				end
+			elseif k == "left" then
+				local c = self._private.cursor
+				if c then
+					self._private.cursor = math.max(c - 1, 0)
+				else
+					self._private.cursor =
+						math.max(utf8.len(self._private.text) - 1, 0)
+				end
+			elseif k == "right" then
+				local c = self._private.cursor
+				if c then
+					self._private.cursor =
+						math.min(c + 1, utf8.len(self._private.text))
+				end
+			elseif k == "home" then
+				self._private.cursor = 0
+			elseif k == "end" then
+				self._private.cursor = nil
+			elseif k == "v" and love.keyboard.isDown("lctrl") then
+				self._private.text =
+					self._private.text .. love.system.getClipboardText()
 			elseif k == "return" then
 				if self.onsubmit then
 					self:onsubmit(self._private.text)
@@ -292,7 +368,13 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 			if self.enabled then
 				love.graphics.setColor(Some.theme.accent)
-				love.graphics.rectangle("fill", self.x + 2, self.y + 2, self.w - 4, self.h - 4)
+				love.graphics.rectangle(
+					"fill",
+					self.x + 2,
+					self.y + 2,
+					self.w - 4,
+					self.h - 4
+				)
 			end
 		end,
 		recalc = function(self)
@@ -328,7 +410,10 @@ function Some.WtextButton(wdow, _text, _x, _y, _callback)
 		h = Some.theme.font:getHeight(),
 		callback = _callback,
 		draw = function(self)
-			if pointInXYWH(self, { x = love.mouse.getX(), y = love.mouse.getY() }) then -- hovered
+			if pointInXYWH(
+					self,
+					{ x = love.mouse.getX(), y = love.mouse.getY() }
+				) then -- hovered
 				love.graphics.setColor(Some.theme.foreground)
 				love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 				love.graphics.setColor(Some.theme.background2)
@@ -379,14 +464,23 @@ function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 			love.graphics.setColor(Some.theme.background2)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 			love.graphics.setColor(Some.theme.accent)
-			love.graphics.rectangle("fill", self.x, self.y, self.progress * self.w, self.h)
+			love.graphics.rectangle(
+				"fill",
+				self.x,
+				self.y,
+				self.progress * self.w,
+				self.h
+			)
 		end,
 		recalc = function(self)
 			self.x = wdow.contentX + _x
 			self.y = wdow.contentY + _y
 		end,
 		mousepressed = function(self, x, y, button)
-			if not self.clickable or not pointInXYWH(self, { x = x, y = y }) or button ~= 1 then
+			if not self.clickable or not pointInXYWH(
+					self,
+					{ x = x, y = y }
+				) or button ~= 1 then
 				return
 			end
 
@@ -429,30 +523,57 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 			love.graphics.setColor(Some.theme.foreground)
 			if self.items[self.current] then
-				love.graphics.print(self.items[self.current], Some.theme.font, Some.theme.font:getHeight() + self.x,
-					self.y)
+				love.graphics.print(
+					self.items[self.current],
+					Some.theme.font,
+					Some.theme.font:getHeight() + self.x,
+					self.y
+				)
 			else
-				love.graphics.print("(none)", Some.theme.font, Some.theme.font:getHeight() + self.x, self.y)
+				love.graphics.print(
+					"(none)",
+					Some.theme.font,
+					Some.theme.font:getHeight() + self.x,
+					self.y
+				)
 			end
 			love.graphics.setColor(Some.theme.secondary)
-			love.graphics.rectangle("fill", self.x, self.y, Some.theme.font:getHeight(), self.h)
+			love.graphics.rectangle(
+				"fill",
+				self.x,
+				self.y,
+				Some.theme.font:getHeight(),
+				self.h
+			)
 		end,
 		recalc = function(self)
 			self.x = wdow.contentX + _x
 			self.y = wdow.contentY + _y
 		end,
 		mousepressed = function(self, x, y, button)
-			local itemsWdow = Some.addWindow("Select one item",
-				0, 0,
-				math.max(self.w,
-					Some.theme.font:getWidth("Select one item") +
-					Some.theme.font:getWidth(Some.theme.pfxActive .. " ")),
-				(#self.items + 1) * Some.theme.font:getHeight())
+			local itemsWdow = Some.addWindow(
+				"Select one item",
+				0,
+				0,
+				math.max(
+					self.w,
+					Some.theme.font:getWidth(
+						"Select one item"
+					) + Some.theme.font:getWidth(Some.theme.pfxActive .. " ")
+				),
+				(#self.items + 1) * Some.theme.font:getHeight()
+			)
 			for k, item in ipairs(self.items) do
-				Some.WtextButton(itemsWdow, item, 0, (k - 1) * Some.theme.font:getHeight(), function()
-					self.current = k
-					itemsWdow:exit()
-				end)
+				Some.WtextButton(
+					itemsWdow,
+					item,
+					0,
+					(k - 1) * Some.theme.font:getHeight(),
+					function()
+						self.current = k
+						itemsWdow:exit()
+					end
+				)
 			end
 		end,
 	}
@@ -475,7 +596,13 @@ function Some:draw()
 		love.graphics.setColor(self.theme.background)
 		love.graphics.rectangle("fill", wdow.x, wdow.y, wdow.w, wdow.h)
 		love.graphics.setColor(self.theme.foreground)
-		love.graphics.rectangle("fill", wdow.x, wdow.y, wdow.w, self.theme.font:getHeight())
+		love.graphics.rectangle(
+			"fill",
+			wdow.x,
+			wdow.y,
+			wdow.w,
+			self.theme.font:getHeight()
+		)
 
 		local lSurround = self.theme.norm[1]
 		local rSurround = self.theme.norm[2]
@@ -493,13 +620,22 @@ function Some:draw()
 		end
 
 		love.graphics.setColor(self.theme.background)
-		love.graphics.print(lSurround .. prefix .. rSurround .. " " .. wdow.title, self.theme.font, wdow.x,
-			wdow.y)
+		love.graphics.print(
+			lSurround .. prefix .. rSurround .. " " .. wdow.title,
+			self.theme.font,
+			wdow.x,
+			wdow.y
+		)
 
 		love.graphics.push("all")
 		-- Clip things that are outside of wdow bounds
 		-- TODO: Create scrollable wdows. <2025-04-11>
-		love.graphics.setScissor(wdow.quad.x, wdow.quad.y, wdow.quad.w, wdow.quad.h)
+		love.graphics.setScissor(
+			wdow.quad.x,
+			wdow.quad.y,
+			wdow.quad.w,
+			wdow.quad.h
+		)
 		for _, widget in pairs(wdow.widgets) do
 			widget:draw()
 		end
@@ -510,8 +646,13 @@ function Some:draw()
 		if isactive then
 			love.graphics.setColor(self.theme.secondary)
 		end
-		love.graphics.rectangle("line", wdow.x - self.theme.lineWidth / 2, wdow.y - self.theme.lineWidth / 2,
-			wdow.w + self.theme.lineWidth, wdow.h + self.theme.lineWidth)
+		love.graphics.rectangle(
+			"line",
+			wdow.x - self.theme.lineWidth / 2,
+			wdow.y - self.theme.lineWidth / 2,
+			wdow.w + self.theme.lineWidth,
+			wdow.h + self.theme.lineWidth
+		)
 		::continue::
 	end
 
