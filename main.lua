@@ -16,6 +16,7 @@ function love.load()
 	)
 
 	ProgressW = Some.Wprogressbar(TestWdow, 0, 20, 100, true)
+	ProgressW.tooltip = "Look for value in top-left corner"
 	DropdownW = Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
 
 	love.graphics.setBackgroundColor(0.1, 0.1, 0.1)

@@ -656,6 +656,24 @@ function Some:draw()
 		::continue::
 	end
 
+	if activeWdow
+		and activeWdow.activeWidget
+		and activeWdow.activeWidget.tooltip
+	then
+		love.graphics.setColor(self.theme.background2)
+		local x, y = love.mouse.getPosition()
+		local fontHeight = self.theme.font:getHeight()
+		love.graphics.rectangle(
+			"fill",
+			x,
+			y - fontHeight,
+			self.theme.font:getWidth(activeWdow.activeWidget.tooltip),
+			fontHeight
+		)
+		love.graphics.setColor(self.theme.secondary)
+		love.graphics.print(activeWdow.activeWidget.tooltip, x, y - fontHeight)
+	end
+
 	love.graphics.setLineWidth(lWidthBefore)
 end
 
@@ -741,6 +759,7 @@ return Some
 
 ---Widget attachable to window
 ---@class Some.Widget: Some.XYWH
+---@field tooltip string?
 
 ---@class Some.Wdow: Some.XYWH
 ---@field id integer Window's ID
