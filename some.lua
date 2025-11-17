@@ -109,10 +109,6 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected, _alwaysonto
 				h = self.h,
 			}
 
-			for _, widget in pairs(self.widgets) do
-				widget:recalc()
-			end
-
 			self:mousemoved(love.mouse.getX(), love.mouse.getY())
 		end,
 		textinput = function(self, t)
@@ -148,7 +144,13 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected, _alwaysonto
 			local oldActive = self.activeWidget
 			self.activeWidget = nil
 			for _, widget in pairs(self.widgets) do
-				if pointInXYWH(widget, { x = x, y = y }) then
+				local w = {
+					x = self.contentX + widget.x,
+					y = self.contentY + widget.y,
+					w = widget.w,
+					h = widget.h,
+				}
+				if pointInXYWH(w, { x = x, y = y }) then
 					self.activeWidget = widget
 					break
 				end
@@ -165,7 +167,10 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected, _alwaysonto
 		end,
 		mousepressed = function(self, x, y, button)
 			if self.activeWidget and self.activeWidget.mousepressed then
-				self.activeWidget:mousepressed(x, y, button)
+				-- NOTE: First two arguments are in content coordinate system.
+				--       Last two arguments are in screen space coordinates.
+				--       <2025-11-17>
+				self.activeWidget:mousepressed(x - self.contentX, y - self.contentY, button, x, y)
 			end
 		end,
 		exit = function(self)
@@ -206,17 +211,13 @@ end
 function Some.Wtext(wdow, _text, _x, _y)
 	local w = {
 		text = _text,
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		w = Some.theme.font:getWidth(_text),
 		h = Some.theme.font:getHeight(),
 		draw = function(self)
 			love.graphics.setColor(Some.theme.foreground)
 			love.graphics.print(self.text, Some.theme.font, self.x, self.y)
-		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
 		end,
 	}
 	w.__index = w
@@ -239,12 +240,12 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 			text = "",
 			cursor = nil,
 		},
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		w = _w,
 		h = Some.theme.font:getHeight(),
 		onsubmit = _onsubmit,
-		draw = function(self)
+		draw = function(self, hovered)
 			love.graphics.setColor(Some.theme.background2)
 			love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 
@@ -256,7 +257,7 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 				self.y
 			)
 
-			if #self._private.text > 0 and wdow.activeWidget == self then
+			if hovered then
 				local b = self._private.text
 				local c = self._private.cursor
 				local w = Some.theme.font:getWidth(b)
@@ -281,10 +282,6 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 					self.y + self.h
 				)
 			end
-		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
 		end,
 		textinput = function(self, t)
 			local b = self._private.text
@@ -369,8 +366,8 @@ end
 ---@return Some.Widget created widget
 function Some.WcheckButton(wdow, _x, _y, _enabled)
 	local w = {
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		w = 20,
 		h = 20,
 		enabled = _enabled == nil and false or _enabled,
@@ -388,12 +385,8 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 				)
 			end
 		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
-		end,
 		mousepressed = function(self, x, y, button)
-			if pointInXYWH(self, { x = x, y = y }) and button == 1 then
+			if button == 1 then
 				self.enabled = not self.enabled
 			end
 		end,
@@ -415,36 +408,27 @@ end
 function Some.WtextButton(wdow, _text, _x, _y, _callback)
 	local w = {
 		text = _text,
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		w = Some.theme.font:getWidth(_text),
 		h = Some.theme.font:getHeight(),
 		callback = _callback,
-		draw = function(self)
-			if pointInXYWH(
-					self,
-					{ x = love.mouse.getX(), y = love.mouse.getY() }
-				) then -- hovered
+		draw = function(self, hovered)
+			if hovered then
 				love.graphics.setColor(Some.theme.foreground)
 				love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 				love.graphics.setColor(Some.theme.background2)
 				love.graphics.print(self.text, Some.theme.font, self.x, self.y)
-			else -- not hovered
+			else
 				love.graphics.setColor(Some.theme.background2)
 				love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 				love.graphics.setColor(Some.theme.foreground)
 				love.graphics.print(self.text, Some.theme.font, self.x, self.y)
 			end
 		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
-		end,
 		mousepressed = function(self, x, y, button)
-			if button == 1 and pointInXYWH(self, { x = x, y = y }) then
-				if self.callback then
-					self:callback()
-				end
+			if button == 1 and self.callback then
+				self:callback()
 			end
 		end,
 	}
@@ -467,8 +451,8 @@ function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 	local w = {
 		progress = 0,
 		clickable = _clickable == nil and false or _clickable,
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		w = _w,
 		h = 20,
 		draw = function(self)
@@ -483,19 +467,10 @@ function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 				self.h
 			)
 		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
-		end,
 		mousepressed = function(self, x, y, button)
-			if not self.clickable or not pointInXYWH(
-					self,
-					{ x = x, y = y }
-				) or button ~= 1 then
-				return
+			if self.clickable and button == 1 then
+				self.progress = (x - self.x) / self.w
 			end
-
-			self.progress = (x - self.x) / self.w
 		end,
 	}
 	w.__index = w
@@ -514,8 +489,8 @@ end
 ---@return Some.Widget created widget
 function Some.Wdropdown(wdow, _x, _y, _items, default)
 	local w = {
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		items = _items,
 		current = default == nil and 1 or default,
 		w = (function()
@@ -557,15 +532,13 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 				self.h
 			)
 		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
-		end,
-		mousepressed = function(self, x, y, button)
+		mousepressed = function(self, x, y, button, screenX, screenY)
+			if button ~= 1 then return end
+
 			local itemsWdow = Some.addWindow(
 				"Select one item",
-				x,
-				y,
+				screenX,
+				screenY,
 				math.max(
 					self.w,
 					Some.theme.font:getWidth(
@@ -610,18 +583,15 @@ end
 function Some.Wimage(wdow, _image, _x, _y, _r, _w, _h)
 	local w = {
 		image = _image,
-		x = wdow.contentX + _x,
-		y = wdow.contentY + _y,
+		x = _x,
+		y = _y,
 		r = _r == nil and 0 or _r,
 		w = _w == nil and _image:getWidth() or _w,
 		h = _h == nil and _image:getHeight() or _h,
 		draw = function(self)
 			love.graphics.setColor(Some.theme.foreground)
-			love.graphics.draw(self.image, self.x, self.y, self.r, self.w / self.image:getWidth(), self.h / self.image:getHeight())
-		end,
-		recalc = function(self)
-			self.x = wdow.contentX + _x
-			self.y = wdow.contentY + _y
+			love.graphics.draw(self.image, self.x, self.y, self.r, self.w / self.image:getWidth(),
+				self.h / self.image:getHeight())
 		end,
 	}
 	w.__index = w
@@ -684,7 +654,9 @@ function Some:draw()
 			wdow.quad.h
 		)
 		for _, widget in pairs(wdow.widgets) do
-			widget:draw()
+			love.graphics.translate(wdow.contentX, wdow.contentY)
+			widget:draw(widget == wdow.activeWidget)
+			love.graphics.origin()
 		end
 		love.graphics.setScissor()
 		love.graphics.pop()
