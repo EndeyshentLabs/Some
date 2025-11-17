@@ -598,6 +598,39 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 	return wdow.widgets[#wdow.widgets]
 end
 
+---Basic image widget
+---@param wdow Some.Wdow
+---@param _image love.Image
+---@param _x number
+---@param _y number
+---@param _r number?
+---@param _w number?
+---@param _h number?
+---@return Some.Widget created widget
+function Some.Wimage(wdow, _image, _x, _y, _r, _w, _h)
+	local w = {
+		image = _image,
+		x = wdow.contentX + _x,
+		y = wdow.contentY + _y,
+		r = _r == nil and 0 or _r,
+		w = _w == nil and _image:getWidth() or _w,
+		h = _h == nil and _image:getHeight() or _h,
+		draw = function(self)
+			love.graphics.setColor(Some.theme.foreground)
+			love.graphics.draw(self.image, self.x, self.y, self.r, self.w / self.image:getWidth(), self.h / self.image:getHeight())
+		end,
+		recalc = function(self)
+			self.x = wdow.contentX + _x
+			self.y = wdow.contentY + _y
+		end,
+	}
+	w.__index = w
+
+	wdow.widgets[#wdow.widgets + 1] = w
+
+	return wdow.widgets[#wdow.widgets]
+end
+
 function Some:draw()
 	local lWidthBefore = love.graphics.getLineWidth()
 

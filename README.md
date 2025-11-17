@@ -47,3 +47,4 @@ List of window widgets
 - Text button (`WtextButton`)
 - Progress bar (clickable btw) (`Wprogressbar`)
 - Dropdown list (`Wdropdown`)
+- Image (`Wimage`)

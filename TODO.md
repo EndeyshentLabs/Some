@@ -5,5 +5,5 @@
 - [ ] Cicular progress bar
 - [ ] Scrollable window (off-screen canvas rendering?)
 - [ ] Radio button
-- [ ] Image
+- [x] Image
 - [x] Dropdown list
