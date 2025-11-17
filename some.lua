@@ -564,15 +564,18 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 		mousepressed = function(self, x, y, button)
 			local itemsWdow = Some.addWindow(
 				"Select one item",
-				0,
-				0,
+				x,
+				y,
 				math.max(
 					self.w,
 					Some.theme.font:getWidth(
 						"Select one item"
-					) + Some.theme.font:getWidth(Some.theme.pfxActive .. " ")
+					) + Some.theme.font:getWidth(Some.theme.pfxActive .. "[ ]")
 				),
-				(#self.items + 1) * Some.theme.font:getHeight()
+				(#self.items + 1) * Some.theme.font:getHeight(),
+				true,
+				false,
+				true
 			)
 			for k, item in ipairs(self.items) do
 				Some.WtextButton(
