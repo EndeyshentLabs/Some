@@ -24,8 +24,14 @@ function love.load()
 
 	ProgressW = Some.Wprogressbar(TestWdow, 0, 20, 100, true)
 	ProgressW.tooltip = "Look for value in top-left corner"
-	DropdownW = Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
-	CheckboxW = Some.WcheckButton(TestWdow, DropdownW.x + DropdownW.w + 2, DropdownW.y, false)
+	DropdownW =
+		Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
+	CheckboxW = Some.WcheckButton(
+		TestWdow,
+		DropdownW.x + DropdownW.w + 2,
+		DropdownW.y,
+		false
+	)
 	CheckboxTextW = Some.Wtext(
 		TestWdow,
 		checkboxTextString .. bool2EnabledDisabled(CheckboxW.enabled),
@@ -40,8 +46,13 @@ end
 function love.draw()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.print("Progress bar:\t" .. ProgressW.progress, 0, 0)
-	love.graphics.print("Dropdown menu:\t" .. DropdownW.current, 0, love.graphics.getFont():getHeight() + 1)
-	CheckboxTextW.text = checkboxTextString .. bool2EnabledDisabled(CheckboxW.enabled)
+	love.graphics.print(
+		"Dropdown menu:\t" .. DropdownW.current,
+		0,
+		love.graphics.getFont():getHeight() + 1
+	)
+	CheckboxTextW.text = checkboxTextString
+		.. bool2EnabledDisabled(CheckboxW.enabled)
 	Some:draw()
 end
 

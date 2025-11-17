@@ -44,7 +44,8 @@ local activeWdow = nil
 ---@param vec2 Some.XY
 ---@return boolean
 local function pointInXYWH(xywh, vec2)
-	if ((vec2.x < xywh.x) or (vec2.y < xywh.y))
+	if
+		((vec2.x < xywh.x) or (vec2.y < xywh.y))
 		or ((vec2.x > xywh.x + xywh.w) or (vec2.y > xywh.y + xywh.h))
 	then
 		return false
@@ -72,7 +73,16 @@ end
 ---@param _protected boolean?
 ---@param _alwaysontop boolean?
 ---@return Some.Wdow
-function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected, _alwaysontop)
+function Some.addWindow(
+	_title,
+	_x,
+	_y,
+	_w,
+	_h,
+	_active,
+	_protected,
+	_alwaysontop
+)
 	local _id = #wdows + 1
 	lastId = _id
 
@@ -171,7 +181,13 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected, _alwaysonto
 				-- NOTE: First two arguments are in content coordinate system.
 				--       Last two arguments are in screen space coordinates.
 				--       <2025-11-17>
-				self.activeWidget:mousepressed(x - self.contentX, y - self.contentY, button, x, y)
+				self.activeWidget:mousepressed(
+					x - self.contentX,
+					y - self.contentY,
+					button,
+					x,
+					y
+				)
 			end
 		end,
 		exit = function(self)
@@ -268,10 +284,7 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 						w = 0
 					else
 						w = Some.theme.font:getWidth(
-							b:sub(
-								1,
-								utf8.offset(b, c + 1) - 1
-							)
+							b:sub(1, utf8.offset(b, c + 1) - 1)
 						)
 					end
 				end
@@ -291,7 +304,8 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 				self._private.text = b .. t
 			else
 				self._private.text = string.sub(b, 1, utf8.offset(b, c + 1) - 1)
-					.. t .. string.sub(b, utf8.offset(b, c + 1))
+					.. t
+					.. string.sub(b, utf8.offset(b, c + 1))
 				self._private.cursor =
 					math.min(self._private.cursor + 1, utf8.len(b) + 1)
 			end
@@ -337,8 +351,8 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 			elseif k == "end" then
 				self._private.cursor = nil
 			elseif k == "v" and love.keyboard.isDown("lctrl") then
-				self._private.text =
-					self._private.text .. love.system.getClipboardText()
+				self._private.text = self._private.text
+					.. love.system.getClipboardText()
 			elseif k == "return" then
 				if self.onsubmit then
 					self:onsubmit(self._private.text)
@@ -534,7 +548,9 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 			)
 		end,
 		mousepressed = function(self, x, y, button, screenX, screenY)
-			if button ~= 1 then return end
+			if button ~= 1 then
+				return
+			end
 
 			local itemsWdow = Some.addWindow(
 				"Select one item",
@@ -542,9 +558,10 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 				screenY,
 				math.max(
 					self.w,
-					Some.theme.font:getWidth(
-						"Select one item"
-					) + Some.theme.font:getWidth(Some.theme.pfxActive .. "[ ]")
+					Some.theme.font:getWidth("Select one item")
+					+ Some.theme.font:getWidth(
+						Some.theme.pfxActive .. "[ ]"
+					)
 				),
 				(#self.items + 1) * Some.theme.font:getHeight(),
 				true,
@@ -591,8 +608,14 @@ function Some.Wimage(wdow, _image, _x, _y, _r, _w, _h)
 		h = _h == nil and _image:getHeight() or _h,
 		draw = function(self)
 			love.graphics.setColor(Some.theme.foreground)
-			love.graphics.draw(self.image, self.x, self.y, self.r, self.w / self.image:getWidth(),
-				self.h / self.image:getHeight())
+			love.graphics.draw(
+				self.image,
+				self.x,
+				self.y,
+				self.r,
+				self.w / self.image:getWidth(),
+				self.h / self.image:getHeight()
+			)
 		end,
 	}
 	w.__index = w
@@ -676,7 +699,8 @@ function Some:draw()
 		::continue::
 	end
 
-	if activeWdow
+	if
+		activeWdow
 		and activeWdow.activeWidget
 		and activeWdow.activeWidget.tooltip
 	then
