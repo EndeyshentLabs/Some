@@ -231,7 +231,7 @@ end
 ---@param _x number
 ---@param _y number
 ---@param _w number
----@param _onsubmit function What to do on `Enter` keypress
+---@param _onsubmit function? What to do on `Enter` keypress
 ---@return Some.Widget created widget
 function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 	local w = {
