@@ -54,11 +54,12 @@ local function pointInXYWH(xywh, vec2)
 end
 
 ---Initializes the Some
----@param theme Some.Theme
+---@param theme Some.Theme? Theme overrides
 function Some:init(theme)
 	if type(theme) == "table" then
 		self.theme = theme
 	end
+	setmetatable(self.theme, { __index = self.defaultTheme })
 end
 
 ---Creates a new Some window
