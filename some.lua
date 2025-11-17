@@ -69,8 +69,9 @@ end
 ---@param _h number
 ---@param _active boolean?
 ---@param _protected boolean?
+---@param _alwaysontop boolean?
 ---@return Some.Wdow
-function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
+function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected, _alwaysontop)
 	local _id = #wdows + 1
 	lastId = _id
 
@@ -85,6 +86,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 		h = _h,
 		active = _active == nil and true or _active,
 		protected = _protected == nil and false or _protected,
+		alwaysontop = _alwaysontop == nil and false or _alwaysontop,
 		contentX = _x + 0,
 		contentY = _y + Some.theme.font:getHeight(),
 		quad = {
@@ -122,9 +124,7 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 			if k == "escape" and love.keyboard.isDown("lalt") then
 				self:exit()
 			elseif k == "tab" and love.keyboard.isDown("lalt") then
-				self.active = false
-				activeWdow = nil
-				Some:mousemoved(love.mouse.getX(), love.mouse.getY())
+				self:hide()
 			else
 				if love.keyboard.isDown("lalt") then
 					if sc == "s" or k == "down" then
@@ -176,6 +176,17 @@ function Some.addWindow(_title, _x, _y, _w, _h, _active, _protected)
 				self = nil
 				Some:mousemoved(love.mouse.getX(), love.mouse.getY())
 			end
+		end,
+		hide = function(self)
+			if not self.alwaysontop then
+				self.active = false
+				activeWdow = nil
+				Some:mousemoved(love.mouse.getX(), love.mouse.getY())
+			end
+		end,
+		show = function(self)
+			self.active = true
+			Some:mousemoved(love.mouse.getX(), love.mouse.getY())
 		end,
 	}
 	---@diagnostic disable-next-line: inject-field
@@ -766,6 +777,7 @@ return Some
 ---@field title string Window's title
 ---@field active boolean Is window visible
 ---@field protected boolean
+---@field alwaysontop boolean Is this window cannot be hidden
 ---@field contentX number Base X postion for content
 ---@field contentY number Base Y postion for content
 ---@field widgets table<Some.Widget> Pool of widgets
