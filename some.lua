@@ -210,6 +210,11 @@ function Some.addWindow(
 			self.active = true
 			Some:mousemoved(love.mouse.getX(), love.mouse.getY())
 		end,
+		attach = function(self, ...)
+			for _, widget in ipairs({ ... }) do
+				table.insert(self.widgets, widget)
+			end
+		end,
 	}
 	---@diagnostic disable-next-line: inject-field
 	wdow.__index = wdow
@@ -220,12 +225,11 @@ function Some.addWindow(
 end
 
 ---Basic text widget
----@param wdow Some.Wdow
 ---@param _text string
 ---@param _x number
 ---@param _y number
 ---@return Some.Widget created widget
-function Some.Wtext(wdow, _text, _x, _y)
+function Some.Wtext(_text, _x, _y)
 	local w = {
 		text = _text,
 		x = _x,
@@ -237,21 +241,17 @@ function Some.Wtext(wdow, _text, _x, _y)
 			love.graphics.print(self.text, Some.theme.font, self.x, self.y)
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 ---Input field widget
----@param wdow Some.Wdow
 ---@param _x number
 ---@param _y number
 ---@param _w number
 ---@param _onsubmit function? What to do on `Enter` keypress
 ---@return Some.Widget created widget
-function Some.Winput(wdow, _x, _y, _w, _onsubmit)
+function Some.Winput(_x, _y, _w, _onsubmit)
 	local w = {
 		_private = {
 			text = "",
@@ -365,21 +365,16 @@ function Some.Winput(wdow, _x, _y, _w, _onsubmit)
 			end
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-	wdow.widgets[#wdow.widgets]._private = w._private
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 ---Toggle/Check button
----@param wdow Some.Wdow
 ---@param _x number
 ---@param _y number
 ---@param _enabled boolean Default button state
 ---@return Some.Widget created widget
-function Some.WcheckButton(wdow, _x, _y, _enabled)
+function Some.WcheckButton(_x, _y, _enabled)
 	local w = {
 		x = _x,
 		y = _y,
@@ -406,21 +401,17 @@ function Some.WcheckButton(wdow, _x, _y, _enabled)
 			end
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 ---Basic button with text
----@param wdow Some.Wdow
 ---@param _text string
 ---@param _x number
 ---@param _y number
 ---@param _callback function What to do on LMB click
 ---@return Some.Widget created widget
-function Some.WtextButton(wdow, _text, _x, _y, _callback)
+function Some.WtextButton(_text, _x, _y, _callback)
 	local w = {
 		text = _text,
 		x = _x,
@@ -447,22 +438,18 @@ function Some.WtextButton(wdow, _text, _x, _y, _callback)
 			end
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 ---Progress bar. Can display progress or (if clickable=false) set progress.
 ---`progress` field is normalized to [0; 1] range
----@param wdow Some.Wdow
 ---@param _x number
 ---@param _y number
 ---@param _w number
 ---@param _clickable boolean
 ---@return Some.Widget created widget
-function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
+function Some.Wprogressbar(_x, _y, _w, _clickable)
 	local w = {
 		progress = 0,
 		clickable = _clickable == nil and false or _clickable,
@@ -488,21 +475,17 @@ function Some.Wprogressbar(wdow, _x, _y, _w, _clickable)
 			end
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 ---Dropdown menu (more like create-window menu)
----@param wdow Some.Wdow
 ---@param _x number
 ---@param _y number
 ---@param _items table Options to choose from
 ---@param default number? Default option
 ---@return Some.Widget created widget
-function Some.Wdropdown(wdow, _x, _y, _items, default)
+function Some.Wdropdown(_x, _y, _items, default)
 	local w = {
 		x = _x,
 		y = _y,
@@ -569,28 +552,25 @@ function Some.Wdropdown(wdow, _x, _y, _items, default)
 				true
 			)
 			for k, item in ipairs(self.items) do
-				Some.WtextButton(
-					itemsWdow,
-					item,
-					0,
-					(k - 1) * Some.theme.font:getHeight(),
-					function()
-						self.current = k
-						itemsWdow:exit()
-					end
+				itemsWdow:attach(
+					Some.WtextButton(
+						item,
+						0,
+						(k - 1) * Some.theme.font:getHeight(),
+						function()
+							self.current = k
+							itemsWdow:exit()
+						end
+					)
 				)
 			end
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 ---Basic image widget
----@param wdow Some.Wdow
 ---@param _image love.Image
 ---@param _x number
 ---@param _y number
@@ -598,7 +578,7 @@ end
 ---@param _w number?
 ---@param _h number?
 ---@return Some.Widget created widget
-function Some.Wimage(wdow, _image, _x, _y, _r, _w, _h)
+function Some.Wimage(_image, _x, _y, _r, _w, _h)
 	local w = {
 		image = _image,
 		x = _x,
@@ -618,11 +598,8 @@ function Some.Wimage(wdow, _image, _x, _y, _r, _w, _h)
 			)
 		end,
 	}
-	w.__index = w
 
-	wdow.widgets[#wdow.widgets + 1] = w
-
-	return wdow.widgets[#wdow.widgets]
+	return w
 end
 
 function Some:draw()
