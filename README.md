@@ -18,7 +18,10 @@ local Some = require("some")
 function love.load()
 	TestWdow = Some.addWindow("Hello from Some window", 100, 100, 400, 100)
 
-	Some.Wtext(TestWdow, "Hello, world!", 10, 10)
+	local textWidget = Some.Wtext("Hello, world!", 10, 10)
+	TestWdow:attach(textWidget)
+	-- or use oneliner
+	-- TestWdow:attach(Some.Wtext("Hello, world!", 10, 10))
 
 	love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 	love.keyboard.setKeyRepeat(true)

@@ -11,33 +11,32 @@ function love.load()
 
 	TestWdow = Some.addWindow("Test wdow", 100, 100, 400, 80)
 
-	Some.Wtext(TestWdow, "Input: ", 0, 5)
-	Some.Winput(
-		TestWdow,
+	TestWdow:attach(Some.Wtext("Input: ", 0, 5))
+	TestWdow:attach(Some.Winput(
 		Some.theme.font:getWidth("Input: "),
 		5,
 		TestWdow.w - Some.theme.font:getWidth("Input: "),
 		function(self, text)
 			print(text)
 		end
-	)
+	))
 
-	ProgressW = Some.Wprogressbar(TestWdow, 0, 20, 100, true)
+	ProgressW = Some.Wprogressbar(0, 20, 100, true)
 	ProgressW.tooltip = "Look for value in top-left corner"
 	DropdownW =
-		Some.Wdropdown(TestWdow, 0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
+		Some.Wdropdown(0, 44, { "Alpha", "Beta", "Gamma", "Delta" })
 	CheckboxW = Some.WcheckButton(
-		TestWdow,
 		DropdownW.x + DropdownW.w + 2,
 		DropdownW.y,
 		false
 	)
 	CheckboxTextW = Some.Wtext(
-		TestWdow,
 		checkboxTextString .. bool2EnabledDisabled(CheckboxW.enabled),
 		CheckboxW.x + CheckboxW.w,
 		CheckboxW.y
 	)
+
+	TestWdow:attach(ProgressW, DropdownW, CheckboxW, CheckboxTextW)
 
 	love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 	love.keyboard.setKeyRepeat(true)
