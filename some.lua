@@ -725,7 +725,9 @@ function Some:mousemoved(x, y, dx, dy)
 	activeWdow = nil
 	for i = lastId, 1, -1 do
 		local wdow = wdows[i]
-		wdow.activeWidget = nil
+		if wdow then
+			wdow.activeWidget = nil
+		end
 		if wdow and wdow.active and pointInXYWH(wdow, { x = x, y = y }) then
 			activeWdow = wdow
 			activeWdow:mousemoved(x, y)
